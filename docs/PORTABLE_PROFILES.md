@@ -14,7 +14,8 @@ Both profiles inherit `assets/mgpu.ini` and override only the listed keys:
 
 - `native-quality`: full-output-resolution NR, Full-FP8 model, one pass, intensity 1.0. Game-side DLSS/DLAA and graphics settings remain unchanged.
 - `native-two-pass`: Light-FP8 then Full-FP8, two native-resolution passes. Experimental, more work, no promise of better visuals. Requires a compatible model runtime.
-- `multi-display-direct-ngx`: opt-in alternative NGX acquisition (`NgxHook=1`, evaluate-time vectors, frame-seal validity) plus `DcompMultiDisplay=1`. Use when the default calibrator misses the game's guides and multi-display detection opens a separate window. The direct hook must report active and guide delivery must be measured; this is not a universal default. Composing onto a monitor on the render card sends frames back across adapters and can cost bandwidth/latency.
+
+The experimental `multi-display-direct-ngx` profile has been withdrawn after a black startup screen in Neverness to Everness. Disabling the direct hook alone did not restore startup while forced composition was still enabled. This does not establish a general cause, but the combination is not a usable preset on that tested setup. Restore the native profile before further diagnosis. Do not force `DcompMultiDisplay=1` merely to hide the bridge's second window; verify display ownership and the game's render adapter first.
 
 Frame generation stays off during initial validation. Start in gameplay, then press Ctrl+Alt+F10 to arm manually. Auto-arming and upstream's automatic quality preset are disabled so they cannot hide startup failures or replace your selected pass settings. HDR follows upstream `ChainColorSpace=auto`, which is experimental; this is not a verified RenoDX HDR integration.
 

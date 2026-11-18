@@ -32,11 +32,6 @@ try {
     Check ($ini -match '(?m)^BestQuality=0\r?$') 'upstream auto-preset overrides custom settings'
     Check ($ini -match '(?m)^Pass2=full\r?$' -and $ini -match '(?m)^Intensity2=1.0\r?$') 'second-pass configuration invalid'
     Check (([regex]::Matches($ini, '(?m)^Passes=')).Count -eq 1) 'duplicate INI keys'
-    & "$root/tools/portable/New-GamePackage.ps1" -GameExe $game -OutputDirectory "$scratch/direct-package" -AddonPath "$scratch/input/bridge.addon64" -RuntimePath "$scratch/input/nvngx_dlssnr.dll" -Profile multi-display-direct-ngx
-    $directIni = Get-Content -LiteralPath "$scratch/direct-package/payload/mgpu.ini" -Raw
-    foreach ($keyValue in @('DcompMultiDisplay=1','NgxHook=1','MvecFromEval=1','MVecBarrierSource=0','MVecSealValid=1')) {
-        Check ($directIni -match ('(?m)^' + [regex]::Escape($keyValue) + '\r?$')) "direct profile missing $keyValue"
-    }
     Check ((Get-Content -LiteralPath "$scratch/game/ReShade.ini" -Raw) -eq $originalIni) 'staging modified game'
     $installer = "$root/tools/portable/Install-GamePackage.ps1"
     Must-Fail { & $installer -PackageDirectory $package -Apply } 'conflicting add-ons were not rejected'
