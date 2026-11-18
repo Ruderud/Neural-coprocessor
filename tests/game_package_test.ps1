@@ -21,7 +21,7 @@ try {
         if ([IO.Path]::GetFullPath($LiteralPath) -eq [IO.Path]::GetFullPath("$scratch/game/dxgi.dll")) { return [pscustomobject]@{VersionInfo=[pscustomobject]@{ProductName='ReShade'}} }
         Microsoft.PowerShell.Management\Get-Item -LiteralPath $LiteralPath
     }
-    $originalIni = "[ADDON]`r`nSomeSetting=keep`r`n[GENERAL]`r`nEffectSearchPaths=.\custom\**`r`nPresetPath=.\MyPreset.ini`r`n"
+    $originalIni = "[ADDON]`r`nSomeSetting=keep`r`nLoadFromDllMain=other.addon64`r`n[GENERAL]`r`nEffectSearchPaths=.\custom\**`r`nPresetPath=.\MyPreset.ini`r`n"
     [IO.File]::WriteAllText("$scratch/game/ReShade.ini", $originalIni)
     Set-Content -LiteralPath "$scratch/game/other.addon64" -Value 'existing mod'
     Set-Content -LiteralPath "$scratch/game/nvngx_dlssnr.dll" -Value 'existing root runtime'
@@ -32,6 +32,11 @@ try {
     Check ($ini -match '(?m)^BestQuality=0\r?$') 'upstream auto-preset overrides custom settings'
     Check ($ini -match '(?m)^Pass2=full\r?$' -and $ini -match '(?m)^Intensity2=1.0\r?$') 'second-pass configuration invalid'
     Check (([regex]::Matches($ini, '(?m)^Passes=')).Count -eq 1) 'duplicate INI keys'
+    & "$root/tools/portable/New-GamePackage.ps1" -GameExe $game -OutputDirectory "$scratch/direct-package" -AddonPath "$scratch/input/bridge.addon64" -RuntimePath "$scratch/input/nvngx_dlssnr.dll" -Profile multi-display-direct-ngx
+    $directIni = Get-Content -LiteralPath "$scratch/direct-package/payload/mgpu.ini" -Raw
+    foreach ($keyValue in @('DcompMultiDisplay=1','NgxHook=1','MvecFromEval=1','MVecBarrierSource=0','MVecSealValid=1')) {
+        Check ($directIni -match ('(?m)^' + [regex]::Escape($keyValue) + '\r?$')) "direct profile missing $keyValue"
+    }
     Check ((Get-Content -LiteralPath "$scratch/game/ReShade.ini" -Raw) -eq $originalIni) 'staging modified game'
     $installer = "$root/tools/portable/Install-GamePackage.ps1"
     Must-Fail { & $installer -PackageDirectory $package -Apply } 'conflicting add-ons were not rejected'
@@ -44,6 +49,7 @@ try {
     $installedIni = Get-Content -LiteralPath "$scratch/game/ReShade.ini" -Raw
     Check ($installedIni.Contains('SomeSetting=keep') -and $installedIni.Contains('PresetPath=.\MyPreset.ini')) 'existing ReShade settings lost'
     Check ($installedIni.Contains('EffectSearchPaths=.\custom\**,.\reshade-shaders\Shaders\**')) 'shader path not merged'
+    Check (-not $installedIni.Contains('LoadFromDllMain=other.addon64')) 'disabled add-on still explicitly loaded'
     $receipt = (Get-ChildItem -LiteralPath "$scratch/game/mgpu-profile-backups" -Recurse -Filter receipt.json).FullName
     $installedHash = (Get-FileHash -LiteralPath "$scratch/game/mgpu.ini").Hash
     Add-Content -LiteralPath "$scratch/game/mgpu.ini" -Value '; player edit'

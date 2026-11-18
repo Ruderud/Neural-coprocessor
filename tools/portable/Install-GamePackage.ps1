@@ -68,6 +68,16 @@ if ($conflicts.Count -and -not $DisableOtherAddons) { throw "Conflicting add-ons
 # Preserve the game's existing ReShade configuration; add only a shader search path.
 $iniPath = Join-Path $target 'ReShade.ini'
 $ini = if (Test-Path -LiteralPath $iniPath) { [IO.File]::ReadAllText($iniPath) } else { '' }
+# Remove explicit early-load requests only for disabled or missing add-ons.
+# Otherwise ReShade keeps trying to load a mod removed by this deployment.
+$ini = [regex]::Replace($ini, '(?m)^LoadFromDllMain=([^\r\n]*)', [System.Text.RegularExpressions.MatchEvaluator]{
+    param($match)
+    $kept = @($match.Groups[1].Value -split ',' | Where-Object {
+        $name = $_.Trim()
+        $name -and $name -notin $conflicts.Name -and ((Test-Path -LiteralPath (Join-Path $target $name)) -or $name -eq 'nvngx.dll_mgpu_bridge.addon64')
+    })
+    return 'LoadFromDllMain=' + ($kept -join ',')
+})
 $generalPattern = '(?ms)^\[GENERAL\][^\r\n]*\r?\n(?<body>.*?)(?=^\[|\z)'
 $general = [regex]::Match($ini, $generalPattern)
 $searchPath = '.\reshade-shaders\Shaders\**'
