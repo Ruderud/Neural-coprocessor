@@ -1,0 +1,9 @@
+{
+  "description": "Experimental two-pass full-resolution NR. More GPU work, not guaranteed better quality. Requires a runtime supporting the selected models.",
+  "settings": {
+    "AutoArm": "0", "Frames": "0", "Neural": "1", "Passes": "2",
+    "BestQuality": "0", "SRUpscale": "0", "NRS": "0", "ResidualPass": "0",
+    "NRPreset1": "2", "NRPreset2": "1", "Intensity": "1.0", "Intensity2": "1.0", "Pass2": "full",
+    "FrameGen": "0", "DcompOverlay": "1", "ChainColorSpace": "auto"
+  }
+}

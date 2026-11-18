@@ -1,0 +1,9 @@
+{
+  "description": "Full-output-resolution NR, one pass, game-side upscaling unchanged. Quality starting point for dual high-end GPUs; not a measured optimum.",
+  "settings": {
+    "AutoArm": "0", "Frames": "0", "Neural": "1", "Passes": "1",
+    "BestQuality": "0", "SRUpscale": "0", "NRS": "0", "ResidualPass": "0",
+    "NRPreset1": "1", "Intensity": "1.0", "FrameGen": "0",
+    "DcompOverlay": "1", "ChainColorSpace": "auto"
+  }
+}

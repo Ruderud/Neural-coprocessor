@@ -1,5 +1,9 @@
 # Neural Coprocessor
 
+> **Ruderud fork:** [Portable game profiles and reversible deployment](docs/PORTABLE_PROFILES.md).
+> Game-independent presets, local package staging, conflict checks and hash-verified backup/restore.
+> Upstream rendering code is unchanged; in-game compatibility and performance still require per-game testing.
+
 **A second GPU runs a game's DLSS Neural Rendering while the first one renders the game.**
 
 ### [Download the latest release](https://github.com/maohgad-web/Neural-coprocessor/releases)
